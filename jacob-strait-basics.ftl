@@ -219,7 +219,25 @@
     </table>
 
     <table style="width=100%; margin-top: 10px;margin-bottom: 0px; ">
-        <#-- maybe right here create a loop var like <#list xs as x>...</#list> to somemanage what invoice we are on. Multiple way this could probalby be done. -->
+
+        <#--If we create are object here, we can reference is below. So that's good. -->
+        <#assign productsTest = { "apple": 5, "banana": 10, "kiwi": 15 }>
+        <#-- Indvidaul objects option -->
+        <#assign invoiceNum = {}>
+        <#assign seqNum = {}>
+        <#assign itemsku = {}>
+        <#assign itemrate = {}>
+        <#assign itemQuantity = {}>
+        <#assign itemGrossAmount = {}>
+        <#-- mass sequence array that would have be to be minpulated later -->
+        <#assign massSeq = []>
+        <#assign massSeqTest = ["1918829", "8274728"]>
+        <#-- The problem that i'm running into is that Freemarker doesn't like its data types to be maniuplated. It's a very much write only kind of style.
+        See if this was javascript, I could just create one massive array of all the data. Then seperate the array into nested arrays by invoice by slicing. 
+        Then compare index 0 with index 1 to see if they have the same invoice. If so, then add the sku quanity and delete index 0. and If they next 
+        one isn't the same invoice number we set our compare index to 1 and move down the line until it's finsihed. Got to be a better way to do that, but it could work... If this was javascript. 
+        -->
+
         <#list groupedinvoices_detailed as invoice_details>
             <#if invoice_details_index==0>
                 <thead>
@@ -238,35 +256,21 @@
                 <#assign ispercent = (invoice_details.itemtype=="Discount")||istax>
                 <#assign noquantity = (invoice_details.itemtype=="ShipItem")||istax>
                 <#assign notsubdesc = (invoice_details.itemtype!="ShipItem")&&(invoice_details.itemtype!="Description")&&(invoice_details.itemtype!="Subtotal")>
-                <#assign gross_quantity = 69>
-                <#assign gross_amount = 0>
-                <#assign reference_sku = 'DDK500'>
-                <#-- The more I think about it, the more i realize that there should be an if statement here saying if its the same invoice
-                and same sku then we should just be adding the qualites and quanties, and then once we collected all that data we could create
-                a row with that.. But is that even possilbe? -->
             <tr>
-                <#-- So we want to make something right here like if (${invoice_details.invoicenum} && ${invoice_details.item}) are the same, 
-                then we want up the quantity are gross amount. But, we don't want the list ot make a new table row but store that info in a varabile.
-                until the iteration finishes up with that specific invoice number Then when it hits a new invoice number we can reset the variables and
-                make a new table row... -->
                 <td align="left" style="border-left: 1px solid; border-bottom: 1px solid; border-right: 1px solid">${invoice_details.invoicenum}</td>
+                <#assign massSeq = massSeq + [invoice_details.invoiceNum]>
                 <td align="center" style="border-bottom: 1px solid; border-right: 1px solid">${invoice_details.linesequencenumber}</td>
                 <td align="left" style="border-bottom: 1px solid; border-right: 1px solid">${invoice_details.item}</td> 
                 <td align="right" style="border-bottom: 1px solid; border-right: 1px solid;">${invoice_details.fxrate}</td>
                 <td align="center" style="border-bottom: 1px solid; border-right: 1px solid; ">
                     <#if !noquantity>
-                            ${invoice_details.quantity} <#-- updated quanity goes here -->
+                            ${invoice_details.quantity} 
                     </#if> 
                 </td>
-                <td align="right" style="border-bottom: 1px solid; border-right: 1px solid">${invoice_details.fxgrossamount}</td> <#-- updated gross goes here. -->
+                <td align="right" style="border-bottom: 1px solid; border-right: 1px solid">${invoice_details.fxgrossamount}</td> 
                 </tr>
             </#if>
         </#list>
-
-            <#-- JACOB"S INNER MONOLOGUE NOTES So the big thing is we are already in a loop as it seems so we don't want to effect any of the other sku's 
-            that don't have muliples per order... So maybe create another loop like saying while in the same invoice number check to see if the 
-            sku comes up again. And if it does just add to the quantity and and gross ammount. I'm not sure about the seq number is and how that will be 
-            effected, and how to prevent it from adding more rows. -->
 
         <tr style="margin-top:25px;">
             <td>&nbsp;</td>
@@ -306,5 +310,61 @@
         </tr>
     </table>
 </#if>
+
+
+<#-- Reference table of how to make and display data 
+<table style="break-inside: avoid; margin-top: 10px; width: 647px;">
+<#assign user = "jacob">
+<#assign users = ["Jacob", "Briana"]>
+<#assign products = { "apple": 5, "banana": 10, "kiwi": 15 }>
+    <tr>
+        <td>HI</td>
+        <td>hi ${user}</td>
+        <td>${users[0]}</td>
+        <td>${products.apple}</td>
+        <td><#list products as name, price>
+            ${name}: ${price}
+            </#list>
+        </td>
+    </tr>
+</table>
+-->
+
+
+<#-- This will be our updated table with consolidated skus. It's more of getting the right data in our variable. -->
+<table style="break-inside: avoid; margin-top: 10px; width: 647px;">
+    <tr style="">
+        <td align="left"><strong style="font-size: 15pt; font-weight: bold;">Consolidated Skus</strong></td>
+    </tr>
+</table>
+
+<table style="width=100%; margin-top: 10px;margin-bottom: 0px; ">
+    <thead>
+        <tr style="background-color: #d3d3d3; ">
+            <th align="center" style="font-weight: bold; border-left: 1px solid; border-top: 1px solid; border-bottom: 1px solid; border-right: 1px solid" width="150pt">Invoice Number</th>
+            <th align="center" style=" font-weight: bold; border-top: 1px solid; border-bottom: 1px solid; border-right: 1px solid" width="130pt">Item</th>
+            <th align="center" style="font-weight: bold; border-top: 1px solid; border-bottom: 1px solid; border-right: 1px solid; " width="100pt">Item Rate</th>
+            <th align="center" style="font-weight: bold; border-top: 1px solid; border-bottom: 1px solid; border-right: 1px solid; " width="70pt">Quantity</th>
+            <th align="center" style=" font-weight: bold;border-top: 1px solid;  border-bottom: 1px solid; border-right: 1px solid" width="150pt">Gross Amount</th>
+        </tr>
+    </thead>
+    <tr>
+        <td align="left" style="border-left: 1px solid; border-bottom: 1px solid; border-right: 1px solid">
+            <#list massSeq as invoice>
+                ${invoice}
+            </#list>
+        </td>
+        <td align="center" style="border-bottom: 1px solid; border-right: 1px solid">
+            <#list productsTest as name, price>
+                ${name} : ${price}
+            </#list>
+        </td>
+        <td align="left" style="border-bottom: 1px solid; border-right: 1px solid"></td> 
+        <td align="right" style="border-bottom: 1px solid; border-right: 1px solid;"></td>
+        <td align="center" style="border-bottom: 1px solid; border-right: 1px solid; "></td>
+        <td align="right" style="border-bottom: 1px solid; border-right: 1px solid"></td> 
+    </tr>
+</table>
+
 </body>
 </pdf>
