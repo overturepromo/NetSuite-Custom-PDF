@@ -233,9 +233,6 @@
         <#assign massSeq = []>
         <#assign massSeqTest = ["1918829", "8274728"]>
         <#-- The problem that i'm running into is that Freemarker doesn't like its data types to be maniuplated. It's a very much write only kind of style.
-        See if this was javascript, I could just create one massive array of all the data. Then seperate the array into nested arrays by invoice by slicing. 
-        Then compare index 0 with index 1 to see if they have the same invoice. If so, then add the sku quanity and delete index 0. and If they next 
-        one isn't the same invoice number we set our compare index to 1 and move down the line until it's finsihed. Got to be a better way to do that, but it could work... If this was javascript. 
         -->
 
         <#list groupedinvoices_detailed as invoice_details>
